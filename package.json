@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.7",
     "zustand": "^4.5.1",
     "@google/generative-ai": "^0.21.0",
     "pdfjs-dist": "3.11.174",

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useCVStore } from '@/store/useCVStore';
-import { supabase } from '@/lib/supabase';
 
 export const ProjectTab = () => {
   const state = useCVStore();
@@ -10,37 +9,7 @@ export const ProjectTab = () => {
   const [jsonPaste, setJsonPaste] = useState('');
   const [showPaste, setShowPaste] = useState(false);
 
-  const handleSaveToCloud = async () => {
-    setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert("Veuillez vous connecter pour sauvegarder dans le cloud.");
-        return;
-      }
 
-      const { error } = await supabase
-        .from('cvs')
-        .upsert({
-          user_id: user.id,
-          title: state.personalInfo.name + ' CV',
-          content: {
-             personalInfo: state.personalInfo,
-             sidebarSections: state.sidebarSections,
-             mainSections: state.mainSections
-          },
-          styles: state.styleConfig,
-          updated_at: new Date()
-        });
-
-      if (error) throw error;
-      alert("CV sauvegardé avec succès dans Supabase !");
-    } catch (err: any) {
-      alert("Erreur: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleExportJSON = () => {
     const data = JSON.stringify(state, null, 4);
@@ -82,26 +51,7 @@ export const ProjectTab = () => {
 
   return (
     <div className="space-y-5 pt-2 pb-10">
-      {/* Cloud Sync (Disabled temporarily)
-      <section className="panel-card p-5 animate-in">
-        <div className="section-header">
-          <div className="icon-chip"><i className="fas fa-cloud"></i></div>
-          <h3>Cloud Sync</h3>
-        </div>
-        <button 
-          onClick={handleSaveToCloud}
-          disabled={loading}
-          className={`cloud-btn w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2.5 ${loading ? 'saving opacity-80' : ''}`}
-        >
-          {loading ? (
-            <i className="fas fa-circle-notch animate-spin"></i>
-          ) : (
-            <i className="fas fa-cloud-arrow-up"></i>
-          )}
-          {loading ? 'Sauvegarde en cours...' : 'Sauvegarder sur Supabase'}
-        </button>
-      </section>
-      */}
+
 
       {/* Files & Import */}
       <section className="panel-card p-5 animate-in animate-in-delay-1">
