@@ -1,8 +1,8 @@
-# ✨ LuminaCV - Premium Resume Generator
+# ✨ NextGen-CV - Premium Resume Generator
 
-**LuminaCV** is a modern, high-performance CV generator platform built with Next.js. It features a stunning "Liquid Glass" design system, real-time customization, and high-fidelity PDF export capabilities.
+**NextGen-CV** is a modern, high-performance CV generator platform built with Next.js. It features a stunning "Liquid Glass" design system, real-time customization, and high-fidelity PDF export capabilities.
 
-![LuminaCV Preview](https://via.placeholder.com/1200x600/0c1221/ffffff?text=LuminaCV+Premium+Design)
+
 
 ## 🌟 Features
 
