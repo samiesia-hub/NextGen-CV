@@ -82,7 +82,7 @@ export const ProjectTab = () => {
 
   return (
     <div className="space-y-5 pt-2 pb-10">
-      {/* Cloud Sync */}
+      {/* Cloud Sync (Disabled temporarily)
       <section className="panel-card p-5 animate-in">
         <div className="section-header">
           <div className="icon-chip"><i className="fas fa-cloud"></i></div>
@@ -101,6 +101,7 @@ export const ProjectTab = () => {
           {loading ? 'Sauvegarde en cours...' : 'Sauvegarder sur Supabase'}
         </button>
       </section>
+      */}
 
       {/* Files & Import */}
       <section className="panel-card p-5 animate-in animate-in-delay-1">
