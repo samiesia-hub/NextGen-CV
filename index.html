@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium CV Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1A6B8A;
+            --dark: #1B3A50;
+            --sidebar-bg: #F0F4F5;
+            --white: #ffffff;
+            --text: #1f2937;
+            --muted: #5f6c7a;
+            --border: rgba(27, 58, 80, 0.14);
+            --font-size: 0.95rem;
+            --line-height: 1.6;
+            --cv-padding: 2.5rem;
+            --cv-gap: 2rem;
+            --glass: rgba(255, 255, 255, 0.86);
+            --shadow: 0 18px 40px rgba(27, 58, 80, 0.18);
+            --soft-shadow: 0 8px 20px rgba(27, 58, 80, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --arc-height: 40px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 15% 20%, rgba(26, 107, 138, 0.18), transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(27, 58, 80, 0.18), transparent 40%),
+                linear-gradient(145deg, #edf2f7 0%, #d8e2ec 50%, #e5edf4 100%);
+            min-height: 100vh;
+            display: flex;
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* --- Sidebar / Controls --- */
+        .controls {
+            width: 400px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--dark));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 14px;
+            padding: 1rem;
+            box-shadow: var(--soft-shadow);
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        textarea,
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.75);
+            outline: none;
+            transition: var(--transition);
+            color: var(--text);
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(26, 107, 138, 0.14);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .color-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .color-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            background: none;
+        }
+
+        /* --- Preview Area --- */
+        .preview-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            overflow-y: auto;
+            perspective: 1000px;
+        }
+
+        .cv-paper {
+            width: 210mm;
+            min-height: 297mm;
+            background: var(--white);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            display: grid;
+            grid-template-columns: 33% 1fr;
+            position: relative;
+            transform-origin: center;
+            transition: var(--transition);
+            animation: fadeIn 0.8s ease-out;
+            border-radius: 4px;
+        }
+
+        .preview-area:hover .cv-paper {
+            transform: translateY(-2px) scale(1.003);
+            box-shadow: 0 28px 60px rgba(27, 58, 80, 0.22);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- CV Content Styles (Matching LaTeX) --- */
+        .cv-sidebar {
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cv-header-block {
+            height: 140px;
+            background: var(--dark);
+            padding: 2.5rem 1.5rem;
+            position: relative;
+        }
+
+        .cv-name {
+            color: var(--white);
+            font-size: calc(var(--font-size) * 2);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .cv-arc {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            transform: translateY(100%);
+            line-height: 0;
+        }
+
+        .cv-arc svg {
+            width: 100%;
+            display: block;
+        }
+
+        .cv-footer-block {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--dark);
+            height: 40px;
+        }
+
+        .cv-arc-up {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            width: 100%;
+            line-height: 0;
+        }
+
+        .cv-arc-up svg {
+            width: 100%;
+            display: block;
+        }
+
+        .cv-sidebar-content {
+            padding: var(--cv-padding) calc(var(--cv-padding) * 0.6) 80px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--cv-gap);
+        }
+
+        .section-title-sidebar {
+            color: var(--primary);
+            font-size: calc(var(--font-size) * 1.25);
+            font-weight: 700;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: calc(var(--font-size) * 0.9);
+        }
+
+        .cv-link {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .icon-box {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .cv-main {
+            padding: var(--cv-padding);
+            display: flex;
+            flex-direction: column;
+            gap: var(--cv-gap);
+        }
+
+        .section-title-main {
+            color: var(--primary);
+            font-size: calc(var(--font-size) * 1.4);
+            font-weight: 700;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cv-text {
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            color: #3b4450;
+        }
+
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+        }
+
+        .experience-subheader {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: calc(var(--font-size) * 0.95);
+            line-height: var(--line-height);
+        }
+
+        .cv-list {
+            list-style: none;
+        }
+
+        .cv-list li {
+            position: relative;
+            padding-left: 1.2rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .cv-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        .quality-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .square-bullet {
+            width: 10px;
+            height: 10px;
+            background: var(--dark);
+        }
+
+        .language-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+
+        .dot.active {
+            background: var(--primary);
+        }
+
+        /* --- Buttons --- */
+        .actions {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            letter-spacing: 0.2px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(26, 107, 138, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(26, 107, 138, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--dark);
+            border: 1px solid var(--border);
+            box-shadow: var(--soft-shadow);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fbfd;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.55);
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow: var(--soft-shadow);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            background: transparent;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #636e72;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(27, 58, 80, 0.12);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        /* --- Dynamic Editor UI --- */
+        .dynamic-section {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--soft-shadow);
+        }
+        .dynamic-item {
+            border-left: 2px solid var(--primary);
+            padding-left: 1rem;
+            margin-top: 1rem;
+            position: relative;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .flex-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Print Styles for 100% Fidelity PDF Export --- */
+        @media print {
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .controls {
+                display: none !important;
+            }
+            .preview-area {
+                padding: 0;
+                margin: 0;
+                overflow: visible;
+                display: block;
+                perspective: none;
+            }
+            .cv-paper {
+                box-shadow: none !important;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+                min-height: 297mm;
+                transform: none !important;
+                animation: none !important;
+                page-break-inside: avoid;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="controls">
+        <h1>CV Platform</h1>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('tab-style')">Style</button>
+            <button class="tab-btn" onclick="showTab('tab-content')">Content</button>
+            <button class="tab-btn" onclick="showTab('tab-pro')">Professional</button>
+            <button class="tab-btn" onclick="showTab('tab-project')">Projet</button>
+        </div>
+
+        <div id="tab-style" class="tab-content active">
+            <div class="control-group">
+                <label>Colors</label>
+                <div class="color-picker-grid">
+                    <div class="control-item">
+                        <label style="font-size: 0.7rem;">Primary</label>
+                        <div class="color-input">
+                            <input type="color" id="primaryColor" value="#1A6B8A">
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <label style="font-size: 0.7rem;">Header</label>
+                        <div class="color-input">
+                            <input type="color" id="headerColor" value="#1B3A50">
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <label style="font-size: 0.7rem;">Sidebar</label>
+                        <div class="color-input">
+                            <input type="color" id="sidebarColor" value="#F0F4F5">
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <label style="font-size: 0.7rem;">Arc Size</label>
+                        <input type="range" id="arcSize" min="20" max="100" value="40">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Layout & Spacing</label>
+                <div class="control-item">
+                    <label style="font-size: 0.7rem;">Padding (Marge interne)</label>
+                    <input type="range" id="cvPadding" min="0.5" max="4" step="0.1" value="2.5">
+                </div>
+                <div class="control-item">
+                    <label style="font-size: 0.7rem;">Gap (Espacement blocs)</label>
+                    <input type="range" id="cvGap" min="0.5" max="4" step="0.1" value="2">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Typography</label>
+                <div class="control-item">
+                    <label style="font-size: 0.7rem;">Font Family</label>
+                    <select id="fontFamily">
+                        <option value="'Inter', sans-serif">Inter (Modern)</option>
+                        <option value="'Outfit', sans-serif">Outfit (Premium)</option>
+                        <option value="Arial, sans-serif">Arial (Standard)</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label style="font-size: 0.7rem;">Taille Texte</label>
+                    <input type="range" id="fontSize" min="0.7" max="1.5" step="0.05" value="0.95">
+                </div>
+                <div class="control-item">
+                    <label style="font-size: 0.7rem;">Espacement Lignes</label>
+                    <input type="range" id="lineHeight" min="1" max="2.5" step="0.1" value="1.6">
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-project" class="tab-content">
+            <div class="control-group">
+                <label>Sauvegarde & Export</label>
+                <p style="font-size: 0.7rem; color: #666; margin-bottom: 1rem;">Votre travail est sauvegardé automatiquement dans votre navigateur.</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button class="btn btn-outline" onclick="exportJSON()"><i class="fas fa-download"></i> Exporter JSON</button>
+                    <button class="btn btn-outline" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Importer JSON</button>
+                    <input type="file" id="importFile" style="display: none;" onchange="importJSON(event)">
+                </div>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 1rem;" onclick="resetAll()"><i class="fas fa-trash-alt"></i> Réinitialiser tout</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Importation PDF/Texte</label>
+                <p style="font-size: 0.7rem; color: #666; margin-bottom: 1rem;">Collez le texte brut de votre CV pour le convertir automatiquement (Bêta).</p>
+                <textarea id="rawTextInput" placeholder="Collez votre texte ici..." style="width: 100%; height: 100px; font-size: 0.7rem; margin-bottom: 0.5rem; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem;"></textarea>
+                <button class="btn btn-outline" style="width: 100%;" onclick="alert('Cette fonctionnalité nécessite une connexion IA. Pour l\'instant, envoyez-moi simplement votre texte ou PDF dans notre chat, et je mettrai à jour votre CV pour vous !')">Analyser le texte</button>
+            </div>
+        </div>
+
+        <div id="tab-content" class="tab-content">
+            <div class="control-group">
+                <label>Personal Info</label>
+                <div class="control-item">
+                    <label>Name</label>
+                    <input type="text" id="userName" value="ES-SADKIA Sami">
+                </div>
+                <div class="control-item">
+                    <label>Email</label>
+                    <input type="text" id="userEmail" value="samies2sadkia@gmail.com">
+                </div>
+                <div class="control-item">
+                    <label>Phone</label>
+                    <input type="text" id="userPhone" value="+212766321890">
+                </div>
+                <div class="control-item">
+                    <label>Location</label>
+                    <input type="text" id="userLocation" value="60000 OUJDA">
+                </div>
+                <div class="control-item">
+                    <label>Profile</label>
+                    <textarea id="userProfile"
+                        rows="5">Développeur full-stack (React.js / Node.js) actuellement en Master en ingénierie logicielle. Spécialisé dans la conception et le développement d'applications web modernes...</textarea>
+                </div>
+            </div>
+            <div id="sidebarControlsContainer"></div>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 1rem;" onclick="addSidebarSection()">
+                <i class="fas fa-plus"></i> Add Sidebar Section
+            </button>
+        </div>
+
+        <div id="tab-pro" class="tab-content">
+            <div id="proControlsContainer"></div>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 1rem;" onclick="addSection()">
+                <i class="fas fa-plus"></i> Add New Section
+            </button>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" id="downloadPdf">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </button>
+            <button class="btn btn-secondary" id="resetStyles">
+                <i class="fas fa-undo"></i> Reset All
+            </button>
+        </div>
+    </aside>
+
+    <main class="preview-area">
+        <div class="cv-paper" id="cvPaper">
+            <div class="cv-sidebar" id="sidebarElement">
+                <div class="cv-header-block" id="headerBlock">
+                    <div class="cv-name" id="previewName">ES-SADKIA Sami</div>
+                    <div class="cv-arc" id="arcElement">
+                        <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                            <path id="arcPath" d="M0,0 Q50,40 100,0" fill="#1B3A50" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="cv-sidebar-content">
+                    <div>
+                        <h2 class="section-title-sidebar">Informations personnelles</h2>
+                        <div class="contact-item">
+                            <div class="icon-box"><i class="fas fa-user"></i></div>
+                            <span id="previewNameLower">ES-SADKIA Sami</span>
+                        </div>
+                        <div class="contact-item">
+                            <div class="icon-box"><i class="fas fa-envelope"></i></div>
+                            <a href="mailto:samies2sadkia@gmail.com" id="previewEmail" class="cv-link">samies2sadkia@gmail.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <div class="icon-box"><i class="fas fa-phone"></i></div>
+                            <span id="previewPhone">+212766321890</span>
+                        </div>
+                        <div class="contact-item">
+                            <div class="icon-box"><i class="fas fa-home"></i></div>
+                            <span id="previewLocation">60000 OUJDA</span>
+                        </div>
+                    <div id="sidebarSectionsContainer"></div>
+                </div>
+
+
+                </div>
+                
+                <div class="cv-footer-block" id="footerBlock">
+                    <div class="cv-arc-up" id="arcElementUp">
+                        <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                            <path id="arcPathUp" d="M0,0 Q50,40 100,0 L100,40 L0,40 Z" fill="#1B3A50" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cv-main">
+                <div>
+                    <h2 class="section-title-main">Profil</h2>
+                    <p class="cv-text" id="previewProfile">Développeur full-stack (React.js / Node.js) actuellement en
+                        Master en ingénierie logicielle. Spécialisé dans la conception et le développement
+                        d'applications web modernes...</p>
+                </div>
+
+                <div id="previewMainSections"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const root = document.documentElement;
+        const inputs = {
+            primary: document.getElementById('primaryColor'),
+            header: document.getElementById('headerColor'),
+            sidebar: document.getElementById('sidebarColor'),
+            arc: document.getElementById('arcSize'),
+            font: document.getElementById('fontFamily'),
+            fontSize: document.getElementById('fontSize'),
+            lineHeight: document.getElementById('lineHeight'),
+            cvPadding: document.getElementById('cvPadding'),
+            cvGap: document.getElementById('cvGap'),
+            name: document.getElementById('userName'),
+            profile: document.getElementById('userProfile'),
+            email: document.getElementById('userEmail'),
+            phone: document.getElementById('userPhone'),
+            location: document.getElementById('userLocation')
+        };
+
+        const previews = {
+            name: document.getElementById('previewName'),
+            nameLower: document.getElementById('previewNameLower'),
+            profile: document.getElementById('previewProfile'),
+            email: document.getElementById('previewEmail'),
+            phone: document.getElementById('previewPhone'),
+            location: document.getElementById('previewLocation'),
+            paper: document.getElementById('cvPaper')
+        };
+
+        // --- Dynamic State ---
+        let cvState = {
+            sidebarSections: [
+                {
+                    title: "", // Blends with Personal Info
+                    type: "link",
+                    items: [
+                        { icon: "fab fa-github", text: "github.com/samiesia-hub", href: "https://github.com/samiesia-hub" },
+                        { icon: "fab fa-linkedin", text: "linkedin.com/in/sami-es-sadkia", href: "https://www.linkedin.com/in/sami-es-sadkia" }
+                    ]
+                },
+                {
+                    title: "Langues",
+                    type: "language",
+                    items: [
+                        { name: "Arabe", dots: 5 },
+                        { name: "Anglais", dots: 3 },
+                        { name: "Français", dots: 4 }
+                    ]
+                },
+                {
+                    title: "Qualités",
+                    type: "quality",
+                    items: ["Autonomie", "Sens du détail", "Adaptabilité", "Curieux", "Travail d'équipe"]
+                },
+                {
+                    title: "Centres d'intérêt",
+                    type: "quality",
+                    items: ["Programmation", "Sport", "Cuisine"]
+                }
+            ],
+            mainSections: [
+                {
+                    id: 1,
+                    title: "Formation",
+                    items: [
+                        { title: "Master Ingénierie Informatique (M2I)", period: "2025 - 2027", subtitle: "Université Mohammed Premier, OUJDA", description: "Master en Informatique – Génie Logiciel (en cours)", bullets: [] },
+                        { title: "Licence Fondamentale en Mathématiques et Informatique", period: "2022 - 2025", subtitle: "", description: "", bullets: [] },
+                        { title: "Baccalauréat Sciences Mathématiques B", period: "2021 - 2022", subtitle: "", description: "", bullets: [] }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "Expérience professionnelle",
+                    items: [
+                        { 
+                            title: "Développeur Full-Stack MERN", 
+                            period: "2025 - 2026", 
+                            subtitle: "Ark X, Oujda", 
+                            description: "- Développement d’applications web complètes avec la stack MERN (MongoDB, Express, React, Node.js)\n- Conception et implémentation d’API REST pour la gestion des utilisateurs et des données\n- Création d’interfaces dynamiques avec React (composants réutilisables, gestion d’état)\n- Modélisation et manipulation de bases de données NoSQL (MongoDB)\n- Utilisation de Git pour le versioning et collaboration",
+                            bullets: [
+                                "Développement d’applications web complètes avec la stack MERN (MongoDB, Express, React, Node.js)",
+                                "Conception et implémentation d’API REST pour la gestion des utilisateurs et des données",
+                                "Création d’interfaces dynamiques avec React (composants réutilisables, gestion d’état)",
+                                "Modélisation et manipulation de bases de données NoSQL (MongoDB)",
+                                "Utilisation de Git pour le versioning et collaboration"
+                            ] 
+                        }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "projets",
+                    items: [
+                        { 
+                            title: "Plateforme de Gestion Scolaire (PHP, MySQL, JavaScript)", 
+                            period: "", 
+                            subtitle: "", 
+                            description: "- Développement d’une application web pour la gestion des étudiants, notes et administration\n- Implémentation d’un backend en PHP avec base de données MySQL (CRUD complet)\n- Création d’une interface interactive en JavaScript\n- Génération de rapports PDF",
+                            bullets: [
+                                "Développement d’une application web pour la gestion des étudiants, notes et administration",
+                                "Implémentation d’un backend en PHP avec base de données MySQL (CRUD complet)",
+                                "Création d’une interface interactive en JavaScript",
+                                "Génération de rapports PDF"
+                            ] 
+                        }
+                    ]
+                },
+                {
+                    id: 4,
+                    title: "Compétences Techniques",
+                    items: [
+                        { title: "frontend", period: "", subtitle: "", description: "React.js, JavaScript (ES6+), TypeScript, Tailwind CSS", bullets: [] },
+                        { title: "Backend", period: "", subtitle: "", description: "Jakarta EE, Node.js, Express.js, PHP", bullets: [] },
+                        { title: "Bases de données", period: "", subtitle: "", description: "MongoDB, MySQL, PostgreSQL (Supabase)", bullets: [] },
+                        { title: "Outils", period: "", subtitle: "", description: "Git, Vite, VS Code, Antigravity, Gemini", bullets: [] },
+                        { title: "Fondamentaux", period: "", subtitle: "", description: "Java, C, Python", bullets: [] }
+                    ]
+                }
+            ]
+        };
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Rendering Logic ---
+        function renderSidebarControls() {
+            const container = document.getElementById('sidebarControlsContainer');
+            container.innerHTML = '';
+
+            cvState.sidebarSections.forEach((section, sIndex) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'dynamic-section';
+                
+                sectionDiv.innerHTML = `
+                    <div class="flex-between">
+                        <div style="display:flex; gap:0.2rem">
+                            <button class="btn btn-sm" onclick="moveSidebarSection(${sIndex}, -1)">↑</button>
+                            <button class="btn btn-sm" onclick="moveSidebarSection(${sIndex}, 1)">↓</button>
+                        </div>
+                        <input type="text" placeholder="Titre (vide pour fusionner)" value="${section.title}" oninput="updateSidebarSectionTitle(${sIndex}, this.value)" style="font-weight: bold; font-size: 1rem; border: none; border-bottom: 2px solid var(--primary); background: transparent; width: 35%;">
+                        <select onchange="updateSidebarSectionType(${sIndex}, this.value)" style="width: 25%; font-size: 0.7rem;">
+                            <option value="link" ${section.type === 'link' ? 'selected' : ''}>Links</option>
+                            <option value="language" ${section.type === 'language' ? 'selected' : ''}>Languages</option>
+                            <option value="quality" ${section.type === 'quality' ? 'selected' : ''}>Qualities/List</option>
+                        </select>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSidebarSection(${sIndex})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+
+                section.items.forEach((item, iIndex) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'dynamic-item';
+                    itemDiv.style.padding = '0.5rem';
+                    
+                    if (section.type === 'link') {
+                        itemDiv.innerHTML = `
+                            <div class="flex-between">
+                                <div style="display:flex; gap:0.2rem">
+                                    <button class="btn btn-sm" onclick="moveSidebarItem(${sIndex}, ${iIndex}, -1)">↑</button>
+                                    <button class="btn btn-sm" onclick="moveSidebarItem(${sIndex}, ${iIndex}, 1)">↓</button>
+                                </div>
+                                <button class="btn btn-sm" style="color:red" onclick="deleteSidebarItem(${sIndex}, ${iIndex})">×</button>
+                            </div>
+                            <input type="text" placeholder="Icon" value="${item.icon}" oninput="updateSidebarItem(${sIndex}, ${iIndex}, 'icon', this.value)" style="font-size:0.7rem; margin-bottom:2px">
+                            <input type="text" placeholder="Text" value="${item.text}" oninput="updateSidebarItem(${sIndex}, ${iIndex}, 'text', this.value)" style="font-size:0.7rem; margin-bottom:2px">
+                            <input type="text" placeholder="URL" value="${item.href}" oninput="updateSidebarItem(${sIndex}, ${iIndex}, 'href', this.value)" style="font-size:0.7rem">
+                        `;
+                    } else if (section.type === 'language') {
+                        itemDiv.innerHTML = `
+                            <div class="flex-between">
+                                <div style="display:flex; gap:0.2rem">
+                                    <button class="btn btn-sm" onclick="moveSidebarItem(${sIndex}, ${iIndex}, -1)">↑</button>
+                                    <button class="btn btn-sm" onclick="moveSidebarItem(${sIndex}, ${iIndex}, 1)">↓</button>
+                                </div>
+                                <input type="text" value="${item.name}" oninput="updateSidebarItem(${sIndex}, ${iIndex}, 'name', this.value)" style="width:40%; font-size:0.7rem">
+                                <input type="number" min="0" max="5" value="${item.dots}" oninput="updateSidebarItem(${sIndex}, ${iIndex}, 'dots', parseInt(this.value))" style="width:15%; font-size:0.7rem">
+                                <button class="btn btn-sm" style="color:red" onclick="deleteSidebarItem(${sIndex}, ${iIndex})">×</button>
+                            </div>
+                        `;
+                    } else {
+                        itemDiv.innerHTML = `
+                            <div class="flex-between">
+                                <div style="display:flex; gap:0.2rem">
+                                    <button class="btn btn-sm" onclick="moveSidebarItem(${sIndex}, ${iIndex}, -1)">↑</button>
+                                    <button class="btn btn-sm" onclick="moveSidebarItem(${sIndex}, ${iIndex}, 1)">↓</button>
+                                </div>
+                                <input type="text" value="${item}" oninput="updateSidebarItem(${sIndex}, ${iIndex}, null, this.value)" style="flex:1; font-size:0.7rem; margin:0 5px">
+                                <button class="btn btn-sm" style="color:red" onclick="deleteSidebarItem(${sIndex}, ${iIndex})">×</button>
+                            </div>
+                        `;
+                    }
+                    sectionDiv.appendChild(itemDiv);
+                });
+
+                const addItemBtn = document.createElement('button');
+                addItemBtn.className = 'btn btn-sm btn-outline';
+                addItemBtn.style.marginTop = '0.5rem';
+                addItemBtn.style.width = '100%';
+                addItemBtn.innerHTML = '+ Item';
+                addItemBtn.onclick = () => addSidebarItem(sIndex);
+                sectionDiv.appendChild(addItemBtn);
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function renderSidebarPreview() {
+            const container = document.getElementById('sidebarSectionsContainer');
+            container.innerHTML = '';
+
+            cvState.sidebarSections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.style.marginBottom = '1.5rem';
+                
+                let html = '';
+                if (section.title) {
+                    html += `<h2 class="section-title-sidebar">${section.title}</h2>`;
+                }
+                
+                section.items.forEach(item => {
+                    if (section.type === 'link') {
+                        const content = item.href 
+                            ? `<a href="${item.href}" class="cv-link" target="_blank" style="font-size:0.8rem">${item.text}</a>`
+                            : `<span>${item.text}</span>`;
+                        html += `<div class="contact-item"><div class="icon-box"><i class="${item.icon}"></i></div>${content}</div>`;
+                    } else if (section.type === 'language') {
+                        let dotsHtml = '<div class="language-dots">';
+                        for(let i=1; i<=5; i++) {
+                            dotsHtml += `<div class="dot ${i <= item.dots ? 'active' : ''}"></div>`;
+                        }
+                        dotsHtml += '</div>';
+                        html += `<div class="contact-item" style="justify-content: space-between;"><span>${item.name}</span>${dotsHtml}</div>`;
+                    } else {
+                        html += `<div class="quality-item"><div class="square-bullet"></div><span>${item}</span></div>`;
+                    }
+                });
+                
+                sectionDiv.innerHTML = html;
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function renderProControls() {
+            const container = document.getElementById('proControlsContainer');
+            container.innerHTML = '';
+
+            cvState.mainSections.forEach((section, sIndex) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'dynamic-section';
+                
+                // Section Header
+                sectionDiv.innerHTML = `
+                    <div class="flex-between">
+                        <div style="display:flex; gap:0.2rem">
+                            <button class="btn btn-sm" onclick="moveMainSection(${sIndex}, -1)">↑</button>
+                            <button class="btn btn-sm" onclick="moveMainSection(${sIndex}, 1)">↓</button>
+                        </div>
+                        <input type="text" value="${section.title}" oninput="updateSectionTitle(${sIndex}, this.value)" style="font-weight: bold; font-size: 1.1rem; border: none; border-bottom: 2px solid var(--primary); background: transparent; width: 50%;">
+                        <button class="btn btn-sm btn-danger" onclick="deleteSection(${sIndex})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+
+                // Items
+                section.items.forEach((item, iIndex) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'dynamic-item';
+                    itemDiv.innerHTML = `
+                        <div class="flex-between" style="margin-bottom: 0.5rem;">
+                            <div style="display:flex; gap:0.2rem">
+                                <button class="btn btn-sm" onclick="moveMainItem(${sIndex}, ${iIndex}, -1)">↑</button>
+                                <button class="btn btn-sm" onclick="moveMainItem(${sIndex}, ${iIndex}, 1)">↓</button>
+                                <span style="font-size: 0.7rem; color: var(--primary); font-weight: bold; align-self:center; margin-left:5px">Item ${iIndex + 1}</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline" style="border-color: #e74c3c; color: #e74c3c;" onclick="deleteItem(${sIndex}, ${iIndex})"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="control-item"><label>Titre</label><input type="text" value="${item.title}" oninput="updateItem(${sIndex}, ${iIndex}, 'title', this.value)"></div>
+                        <div class="control-item"><label>Sous-titre / École</label><input type="text" value="${item.subtitle}" oninput="updateItem(${sIndex}, ${iIndex}, 'subtitle', this.value)"></div>
+                        <div class="control-item"><label>Période</label><input type="text" value="${item.period}" oninput="updateItem(${sIndex}, ${iIndex}, 'period', this.value)"></div>
+                        <div class="control-item"><label>Description (séparez par des tirets - )</label><textarea rows="3" oninput="updateItemBullets(${sIndex}, ${iIndex}, this.value)">${item.bullets.length > 0 ? '- ' + item.bullets.join('\n- ') : ''}</textarea></div>
+                    `;
+                    sectionDiv.appendChild(itemDiv);
+                });
+
+                // Add Item Button
+                const addItemBtn = document.createElement('button');
+                addItemBtn.className = 'btn btn-sm btn-outline';
+                addItemBtn.style.marginTop = '1rem';
+                addItemBtn.style.width = '100%';
+                addItemBtn.innerHTML = '<i class="fas fa-plus"></i> Add Item';
+                addItemBtn.onclick = () => addItem(sIndex);
+                sectionDiv.appendChild(addItemBtn);
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function renderMainCV() {
+            const container = document.getElementById('previewMainSections');
+            container.innerHTML = '';
+
+            cvState.mainSections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                
+                let html = `<h2 class="section-title-main">${section.title}</h2>`;
+                
+                section.items.forEach(item => {
+                    html += `
+                        <div class="experience-header">
+                            <span>${item.title}</span>
+                            <span>${item.period}</span>
+                        </div>
+                        <div class="experience-subheader">${item.subtitle}</div>
+                    `;
+                    if (item.bullets && item.bullets.length > 0) {
+                        html += `<ul class="cv-list cv-text">`;
+                        item.bullets.forEach(b => { html += `<li>${b}</li>`; });
+                        html += `</ul>`;
+                    }
+                });
+                
+                sectionDiv.innerHTML = html;
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        // --- State Updaters ---
+        function moveItem(array, index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < array.length) {
+                const temp = array[index];
+                array[index] = array[newIndex];
+                array[newIndex] = temp;
+                return true;
+            }
+            return false;
+        }
+
+        function moveSidebarSection(sIndex, direction) {
+            if (moveItem(cvState.sidebarSections, sIndex, direction)) {
+                renderSidebarControls();
+                renderSidebarPreview();
+            }
+        }
+        function moveSidebarItem(sIndex, iIndex, direction) {
+            if (moveItem(cvState.sidebarSections[sIndex].items, iIndex, direction)) {
+                renderSidebarControls();
+                renderSidebarPreview();
+            }
+        }
+        function moveMainSection(sIndex, direction) {
+            if (moveItem(cvState.mainSections, sIndex, direction)) {
+                renderProControls();
+                renderMainCV();
+            }
+        }
+        function moveMainItem(sIndex, iIndex, direction) {
+            if (moveItem(cvState.mainSections[sIndex].items, iIndex, direction)) {
+                renderProControls();
+                renderMainCV();
+            }
+        }
+
+        function updateSidebarSectionTitle(sIndex, value) {
+            cvState.sidebarSections[sIndex].title = value;
+            renderSidebarPreview();
+        }
+        function updateSidebarSectionType(sIndex, value) {
+            cvState.sidebarSections[sIndex].type = value;
+            // Re-initialize items for new type if needed
+            if (value === 'link') cvState.sidebarSections[sIndex].items = [{icon:'fas fa-link', text:'', href:''}];
+            else if (value === 'language') cvState.sidebarSections[sIndex].items = [{name:'', dots:3}];
+            else cvState.sidebarSections[sIndex].items = [''];
+            renderSidebarControls();
+            renderSidebarPreview();
+        }
+        function addSidebarSection() {
+            cvState.sidebarSections.push({ title: "Nouveau", type: "quality", items: [""] });
+            renderSidebarControls();
+            renderSidebarPreview();
+        }
+        function deleteSidebarSection(sIndex) {
+            if (confirm("Supprimer cette section du sidebar?")) {
+                cvState.sidebarSections.splice(sIndex, 1);
+                renderSidebarControls();
+                renderSidebarPreview();
+            }
+        }
+        function updateSidebarItem(sIndex, iIndex, field, value) {
+            if (field) cvState.sidebarSections[sIndex].items[iIndex][field] = value;
+            else cvState.sidebarSections[sIndex].items[iIndex] = value;
+            renderSidebarPreview();
+        }
+        function addSidebarItem(sIndex) {
+            const section = cvState.sidebarSections[sIndex];
+            if (section.type === 'link') section.items.push({icon:'fas fa-link', text:'', href:''});
+            else if (section.type === 'language') section.items.push({name:'', dots:3});
+            else section.items.push('');
+            renderSidebarControls();
+            renderSidebarPreview();
+        }
+        function deleteSidebarItem(sIndex, iIndex) {
+            cvState.sidebarSections[sIndex].items.splice(iIndex, 1);
+            renderSidebarControls();
+            renderSidebarPreview();
+        }
+
+        function updateSectionTitle(sIndex, value) {
+            cvState.mainSections[sIndex].title = value;
+            renderMainCV();
+        }
+
+        function updateItem(sIndex, iIndex, field, value) {
+            cvState.mainSections[sIndex].items[iIndex][field] = value;
+            renderMainCV();
+        }
+
+        function updateItemBullets(sIndex, iIndex, text) {
+            const bullets = text.split('\n').map(line => line.replace(/^- /, '').trim()).filter(line => line.length > 0);
+            cvState.mainSections[sIndex].items[iIndex].bullets = bullets;
+            renderMainCV();
+        }
+
+        function addSection() {
+            cvState.mainSections.push({
+                id: Date.now(),
+                title: "Nouvelle Section",
+                items: []
+            });
+            renderProControls();
+            renderMainCV();
+        }
+
+        function deleteSection(sIndex) {
+            if (confirm("Supprimer cette section ?")) {
+                cvState.mainSections.splice(sIndex, 1);
+                renderProControls();
+                renderMainCV();
+            }
+        }
+
+        function addItem(sIndex) {
+            cvState.mainSections[sIndex].items.push({
+                id: Date.now(),
+                title: "Nouveau",
+                subtitle: "",
+                period: "",
+                bullets: []
+            });
+            renderProControls();
+            renderMainCV();
+        }
+
+        function deleteItem(sIndex, iIndex) {
+            cvState.mainSections[sIndex].items.splice(iIndex, 1);
+            renderProControls();
+            renderMainCV();
+        }
+
+        function updatePreview() {
+            root.style.setProperty('--primary', inputs.primary.value);
+            root.style.setProperty('--dark', inputs.header.value);
+            root.style.setProperty('--sidebar-bg', inputs.sidebar.value);
+            root.style.setProperty('--font-size', inputs.fontSize.value + 'rem');
+            root.style.setProperty('--line-height', inputs.lineHeight.value);
+            root.style.setProperty('--cv-padding', inputs.cvPadding.value + 'rem');
+            root.style.setProperty('--cv-gap', inputs.cvGap.value + 'rem');
+            previews.paper.style.fontFamily = inputs.font.value;
+
+            const arcH = inputs.arc.value;
+            const arcSvg = document.querySelector('#arcElement svg');
+            arcSvg.setAttribute('viewBox', `0 0 100 ${arcH}`);
+            document.getElementById('arcPath').setAttribute('d', `M0,0 Q50,${arcH} 100,0`);
+            document.getElementById('arcPath').setAttribute('fill', inputs.header.value);
+
+            const arcSvgUp = document.querySelector('#arcElementUp svg');
+            arcSvgUp.setAttribute('viewBox', `0 0 100 ${arcH}`);
+            document.getElementById('arcPathUp').setAttribute('d', `M0,0 Q50,${arcH} 100,0 L100,${arcH} L0,${arcH} Z`);
+            document.getElementById('arcPathUp').setAttribute('fill', inputs.header.value);
+
+            previews.name.textContent = inputs.name.value;
+            previews.nameLower.textContent = inputs.name.value;
+            previews.profile.textContent = inputs.profile.value;
+            previews.email.textContent = inputs.email.value;
+            previews.email.href = 'mailto:' + inputs.email.value;
+            previews.phone.textContent = inputs.phone.value;
+            previews.location.textContent = inputs.location.value;
+        }
+
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        // Reset button
+        document.getElementById('resetStyles').addEventListener('click', () => {
+            resetAll();
+        });
+
+        document.getElementById('downloadPdf').addEventListener('click', () => {
+            document.title = 'CV_' + inputs.name.value.replace(/\s+/g, '_');
+            window.print();
+            setTimeout(() => { document.title = 'Premium CV Generator'; }, 100);
+        });
+
+        // Auto-reset all styles on page load
+        function resetAll() {
+            inputs.primary.value = '#1A6B8A';
+            inputs.header.value = '#1B3A50';
+            inputs.sidebar.value = '#F0F4F5';
+            inputs.arc.value = 40;
+            inputs.font.value = "'Inter', sans-serif";
+            inputs.fontSize.value = 0.95;
+            inputs.lineHeight.value = 1.6;
+            inputs.cvPadding.value = 2.5;
+            inputs.cvGap.value = 2;
+            inputs.name.value = 'ES-SADKIA Sami';
+            inputs.profile.value = "Développeur full-stack (React.js / Node.js) actuellement en Master en ingénierie logicielle. Spécialisé dans la conception et le développement d'applications web modernes, avec un intérêt particulier pour les architectures backend, la sécurité (authentification) et la performance. Capable de concevoir des applications de bout en bout, de l’architecture à la mise en production.";
+            inputs.email.value = 'samies2sadkia@gmail.com';
+            inputs.phone.value = '+212766321890';
+            inputs.location.value = '60000 OUJDA';
+            
+            // Reset dynamic state
+            cvState = {
+                sidebarSections: [
+                    {
+                        title: "", 
+                        type: "link",
+                        items: [
+                            { icon: "fab fa-github", text: "github.com/samiesia-hub", href: "https://github.com/samiesia-hub" },
+                            { icon: "fab fa-linkedin", text: "linkedin.com/in/sami-es-sadkia", href: "https://www.linkedin.com/in/sami-es-sadkia" }
+                        ]
+                    },
+                    {
+                        title: "Langues",
+                        type: "language",
+                        items: [
+                            { name: "Arabe", dots: 5 },
+                            { name: "Anglais", dots: 3 },
+                            { name: "Français", dots: 4 }
+                        ]
+                    },
+                    {
+                        title: "Qualités",
+                        type: "quality",
+                        items: ["Autonomie", "Sens du détail", "Adaptabilité", "Curieux", "Travail d'équipe"]
+                    },
+                    {
+                        title: "Centres d'intérêt",
+                        type: "quality",
+                        items: ["Programmation", "Sport", "Cuisine"]
+                    }
+                ],
+                mainSections: [
+                    {
+                        id: 1,
+                        title: "Formation",
+                        items: [
+                            { title: "Master Ingénierie Informatique (M2I)", period: "2025 - 2027", subtitle: "Université Mohammed Premier, OUJDA", description: "Master en Informatique – Génie Logiciel (en cours)", bullets: [] },
+                            { title: "Licence Fondamentale en Mathématiques et Informatique", period: "2022 - 2025", subtitle: "", description: "", bullets: [] },
+                            { title: "Baccalauréat Sciences Mathématiques B", period: "2021 - 2022", subtitle: "", description: "", bullets: [] }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        title: "Expérience professionnelle",
+                        items: [
+                            { 
+                                title: "Développeur Full-Stack MERN", 
+                                period: "2025 - 2026", 
+                                subtitle: "Ark X, Oujda", 
+                                description: "- Développement d’applications web complètes avec la stack MERN (MongoDB, Express, React, Node.js)\n- Conception et implémentation d’API REST pour la gestion des utilisateurs et des données\n- Création d’interfaces dynamiques avec React (composants réutilisables, gestion d’état)\n- Modélisation et manipulation de bases de données NoSQL (MongoDB)\n- Utilisation de Git pour le versioning et collaboration",
+                                bullets: [
+                                    "Développement d’applications web complètes avec la stack MERN (MongoDB, Express, React, Node.js)",
+                                    "Conception et implémentation d’API REST pour la gestion des utilisateurs et des données",
+                                    "Création d’interfaces dynamiques avec React (composants réutilisables, gestion d’état)",
+                                    "Modélisation et manipulation de bases de données NoSQL (MongoDB)",
+                                    "Utilisation de Git pour le versioning et collaboration"
+                                ] 
+                            }
+                        ]
+                    },
+                    {
+                        id: 3,
+                        title: "projets",
+                        items: [
+                            { 
+                                title: "Plateforme de Gestion Scolaire (PHP, MySQL, JavaScript)", 
+                                period: "", 
+                                subtitle: "", 
+                                description: "- Développement d’une application web pour la gestion des étudiants, notes et administration\n- Implémentation d’un backend en PHP avec base de données MySQL (CRUD complet)\n- Création d’une interface interactive en JavaScript\n- Génération de rapports PDF",
+                                bullets: [
+                                    "Développement d’une application web pour la gestion des étudiants, notes et administration",
+                                    "Implémentation d’un backend en PHP avec base de données MySQL (CRUD complet)",
+                                    "Création d’une interface interactive en JavaScript",
+                                    "Génération de rapports PDF"
+                                ] 
+                            }
+                        ]
+                    },
+                    {
+                        id: 4,
+                        title: "Compétences Techniques",
+                        items: [
+                            { title: "frontend", period: "", subtitle: "", description: "React.js, JavaScript (ES6+), TypeScript, Tailwind CSS", bullets: [] },
+                            { title: "Backend", period: "", subtitle: "", description: "Jakarta EE, Node.js, Express.js, PHP", bullets: [] },
+                            { title: "Bases de données", period: "", subtitle: "", description: "MongoDB, MySQL, PostgreSQL (Supabase)", bullets: [] },
+                            { title: "Outils", period: "", subtitle: "", description: "Git, Vite, VS Code, Antigravity, Gemini", bullets: [] },
+                            { title: "Fondamentaux", period: "", subtitle: "", description: "Java, C, Python", bullets: [] }
+                        ]
+                    }
+                ]
+            };
+            
+            updatePreview();
+            renderProControls();
+            renderMainCV();
+            renderSidebarControls();
+            renderSidebarPreview();
+            saveToLocalStorage();
+        }
+
+        // --- Persistence Logic ---
+        function saveToLocalStorage() {
+            const data = {
+                inputs: {},
+                cvState: cvState
+            };
+            Object.keys(inputs).forEach(key => {
+                data.inputs[key] = inputs[key].value;
+            });
+            localStorage.setItem('cv_generator_data', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('cv_generator_data');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    cvState = data.cvState;
+                    Object.keys(data.inputs).forEach(key => {
+                        if (inputs[key]) inputs[key].value = data.inputs[key];
+                    });
+                    return true;
+                } catch (e) {
+                    console.error("Error loading from localStorage", e);
+                }
+            }
+            return false;
+        }
+
+        function exportJSON() {
+            const data = {
+                inputs: {},
+                cvState: cvState
+            };
+            Object.keys(inputs).forEach(key => {
+                data.inputs[key] = inputs[key].value;
+            });
+            const blob = new Blob([JSON.stringify(data, null, 4)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cv_${inputs.name.value.replace(/\s+/g, '_')}.json`;
+            a.click();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    cvState = data.cvState;
+                    Object.keys(data.inputs).forEach(key => {
+                        if (inputs[key]) inputs[key].value = data.inputs[key];
+                    });
+                    updatePreview();
+                    renderProControls();
+                    renderMainCV();
+                    renderSidebarControls();
+                    renderSidebarPreview();
+                    saveToLocalStorage();
+                    alert("CV importé avec succès !");
+                } catch (err) {
+                    alert("Erreur lors de l'importation du fichier JSON.");
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Initialize
+        if (!loadFromLocalStorage()) {
+            resetAll();
+        } else {
+            updatePreview();
+            renderProControls();
+            renderMainCV();
+            renderSidebarControls();
+            renderSidebarPreview();
+        }
+        
+        // Auto-save on any input change
+        document.querySelectorAll('input, textarea, select').forEach(el => {
+            el.addEventListener('input', saveToLocalStorage);
+            el.addEventListener('change', saveToLocalStorage);
+        });
+    </script>
+</body>
+
+</html>
